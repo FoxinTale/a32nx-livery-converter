@@ -9,12 +9,14 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
+// File based operations. Mostly for copying the livery.
 public class FileOps {
 
     public static void copyLivery(File currentLivery, File newLivery) throws IOException {
         copyDirectory(currentLivery, newLivery);
     }
+
+
 
 // Below here is copied from Apache File Utils
 

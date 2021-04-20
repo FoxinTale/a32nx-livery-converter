@@ -3,14 +3,16 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.WindowConstants;
+import java.io.IOException;
 
+//Class name explains itself.
 public class GUI {
 	
 	static JTextArea consoleOutput = new JTextArea();
 	static JScrollPane scroll = new JScrollPane(consoleOutput);
 
-	public static void makeGUI() {
-		//JFrame.setDefaultLookAndFeelDecorated(true);
+	public static void makeGUI() throws IOException {
+		JFrame.setDefaultLookAndFeelDecorated(true);
 		JFrame converter = new JFrame();
 		converter.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		converter.setTitle("A32NX - Standalone Livery Converter");
@@ -28,7 +30,7 @@ public class GUI {
 	}
 	
 	
-	
+	//May remove this later.
 	public static boolean advancedSteps() {
 		String t = "Basic conversion completed. Would you like to further into advanced steps?";
 		int o = JOptionPane.showConfirmDialog(new JFrame(), t, "Advanced options", JOptionPane.YES_NO_OPTION);

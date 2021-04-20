@@ -1,4 +1,6 @@
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 
 public class FindLiveries {
@@ -6,98 +8,94 @@ public class FindLiveries {
 
 	static ArrayList<File> aircraftConfigs = new ArrayList<File>();
 	static ArrayList<File> textureConfigs = new ArrayList<File>();
-	
-	public static void getInstalledLiveries() {
 
+
+	public static void getInstalledLiveries() {
+		ArrayList<String> installedAddons = new ArrayList<>();
+		ArrayList<String> baseLiveryPaths = new ArrayList<>();
+		ArrayList<String> trueLiveryPaths = new ArrayList<>();
+
+		ArrayList<File> baseLiveries = new ArrayList<>();
+
+
+		installedAddons = scanCommunityFolder(installedAddons);
+		baseLiveryPaths = findBaseLiveries(installedAddons, baseLiveryPaths);
+
+		addFilestoList(baseLiveries, baseLiveryPaths);
+
+		for(int i = 0; i < baseLiveries.size(); i++){
+			if(SymlinkHandling.checkForSymlink(baseLiveries.get(i))){
+				try {
+					trueLiveryPaths.add(Files.readSymbolicLink(baseLiveries.get(i).toPath()).toString());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else {
+				trueLiveryPaths.add(baseLiveries.get(i).getAbsolutePath());
+			}
+		}
+	}
+
+
+	public static ArrayList<String> scanCommunityFolder(ArrayList<String> contents){
 		File packages = new File(GetPlatform.finalInstallPath);
 		File communityFolder = null;
-		File livery;
+		String communityContents[];
+		String communityPath;
+
 		File manifestFile;
-		File aircraftFile;
-		
 
-		String objectsPath = "\\SimObjects\\AirPlanes\\";
-		String asoboAircraft = "Asobo_A320_NEO";
-		String aircraftConfig = "\\aircraft.cfg";
-		String communityContents[] = null;
-		String communityPath = null;
-		String filePath;
-
-		
-		ArrayList<String> installedAddons = new ArrayList<String>();
-		ArrayList<String> simobjectsPath = new ArrayList<String>();
-		ArrayList<String> liveries = new ArrayList<String>();
-		
-		ArrayList<File> installedLiveries = new ArrayList<File>();
-		
-
-		
 		if(packages.exists()) {
 			communityFolder = new File(packages.getAbsolutePath() + "\\Community\\");
 		} else {
 			Main.printErr("Could not find the packages folder. Oops.");
 		}
-		
+
 
 		if(communityFolder.exists()) {
-			 communityContents = communityFolder.list();
 			communityPath =  communityFolder.getAbsolutePath() + "\\";
+			communityContents = communityFolder.list();
 
 			for(int i = 0; i < communityContents.length; i++) {
-				manifestFile = new File(communityPath + communityContents[i] + "\\manifest.json"); 
-				
-				if(manifestFile.exists()) {
-					installedAddons.add(communityPath + communityContents[i]);
+				manifestFile = new File(communityPath + communityContents[i] + "\\manifest.json");
+
+				if (manifestFile.exists()) {
+					contents.add(communityPath + communityContents[i]);
 					// Has a valid manifest.json file, and is a proper addon / mod.
 				} else {
-					// No manifest json file.  Ignore this or throw an error.
+					System.out.println(communityContents[i] + " is missing a 'manifest.json' file, thus will not load properly in sim.");
 				}
-			}	
+			}
 		} else {
 			Main.printErr("Could not find community folder.. How?");
 		}
-		
 
-		
-		for(int i = 0; i < installedAddons.size(); i++) {
-			simobjectsPath.add(installedAddons.get(i) + objectsPath);
-		}
-		
+		return contents;
+	}
 
-		for(int i = 0; i < simobjectsPath.size(); i++){
-			filePath = simobjectsPath.get(i) + communityContents[i];
 
-			if(filePath.contains(asoboAircraft)) {
-				livery = new File(filePath);		
-				installedLiveries.add(livery);
-				liveries.add(communityPath + communityContents[i]);
-				//System.out.println(communityContents[i] + " is a valid livery.");
-			}	else {
-				//This just means it is not a livery for the A320. Ignore it.
+
+	public static ArrayList<String> findBaseLiveries(ArrayList<String> allItems, ArrayList<String> foundItems){
+		for(int i = 0; i < allItems.size(); i++){
+			if(allItems.get(i).contains("Asobo_A320_NEO")){
+				foundItems.add(allItems.get(i));
 			}
 		}
-		
-		for(int i = 0; i < installedLiveries.size(); i++) {
-			aircraftFile = new File(installedLiveries.get(i).getAbsolutePath() + aircraftConfig);
-				aircraftConfigs.add(aircraftFile);
-		}
-		
-		
-		ConvertLayout.readJsonFile(liveries.get(0));
-
-
-		
-		/*
-		 * if(aircraftConfigs.size() == installedLiveries.size()) { for(int i = 0; i <
-		 * aircraftConfigs.size(); i++) {
-		 * ConvertLiveries.convertAircraftConfig(aircraftConfigs.get(i),
-		 * installedLiveries.get(i)); } } else { // They should be the same size, but
-		 * output an error nevertheless. }
-		 */
-
-
-		ConvertLiveries.convertAircraftConfig(aircraftConfigs.get(1), installedLiveries.get(1));
-		
-
+		return foundItems;
 	}
+
+
+	// Takes an empty arraylist of files  and populates it with files whose paths come from the arraylist of strings.
+	public static ArrayList<File> addFilestoList(ArrayList<File> fileList, ArrayList<String> filePaths){
+		File item;
+
+		for(int i = 0; i < filePaths.size(); i++){
+			item = new File(filePaths.get(i));
+			fileList.add(item);
+		}
+
+		return fileList;
+	}
+
+
 }

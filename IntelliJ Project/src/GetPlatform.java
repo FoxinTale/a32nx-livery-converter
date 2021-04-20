@@ -1,14 +1,16 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+// As the name suggest, this gets the platform MSFS is installed on. Currently, only the game store and Steam are properly handled.
 public class GetPlatform {
 	
 	static String finalInstallPath = null;
 	
 	
-	public static void whichPlatform() {
+	public static void whichPlatform() throws IOException {
 		
 		String userDir = System.getProperty("user.home");
 		String path = null;
@@ -34,7 +36,7 @@ public class GetPlatform {
 		} else {
 			platform = 3;
 			Main.printErr("Could not find the user config. Aborting.");
-			// FBW installer walks through the entire "AppData\Local"  folder and looks for a folder with "Flight" in the name.
+			// Look for a folder in "Appdata\local\" with Flight in the name.
 		}
 		
 		
@@ -70,7 +72,7 @@ public class GetPlatform {
 		}
 		
 		
-		
+		// Not the best way to mess with strings, but it works.
 		installPathSB.append(installPath);
 		int spacePos = installPathSB.indexOf(" ");
 		path = installPathSB.substring(spacePos, installPathSB.length());
@@ -86,7 +88,7 @@ public class GetPlatform {
 		}
 		
 		finalInstallPath = installPathSB.toString().strip();
-		System.out.println(finalInstallPath);
+		//System.out.println(finalInstallPath);
 		FindLiveries.getInstalledLiveries();
 	}
 }
