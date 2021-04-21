@@ -14,8 +14,10 @@ public class FindLiveries {
 		ArrayList<String> installedAddons = new ArrayList<>();
 		ArrayList<String> baseLiveryPaths = new ArrayList<>();
 		ArrayList<String> trueLiveryPaths = new ArrayList<>();
+		ArrayList<String> newLiveryPaths = new ArrayList<>();
 
 		ArrayList<File> baseLiveries = new ArrayList<>();
+		ArrayList<File> newLiveries = new ArrayList<>();
 
 
 		installedAddons = scanCommunityFolder(installedAddons);
@@ -34,6 +36,27 @@ public class FindLiveries {
 				trueLiveryPaths.add(baseLiveries.get(i).getAbsolutePath());
 			}
 		}
+
+
+		StringBuilder liverySB = new StringBuilder();
+
+		for(int i = 0; i < trueLiveryPaths.size(); i++){
+			if(trueLiveryPaths.get(i).contains("Asobo_A320_NEO")){
+				liverySB.append(trueLiveryPaths.get(i));
+				newLiveryPaths.add(liverySB.toString().replace("Asobo", "FlyByWire"));
+				liverySB.delete(0, liverySB.length());
+			}
+		}
+
+		addFilestoList(newLiveries, newLiveryPaths);
+
+		try {
+			FileOps.copyDirectory(baseLiveries.get(0), newLiveries.get(0));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+
 	}
 
 
