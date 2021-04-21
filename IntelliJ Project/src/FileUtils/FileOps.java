@@ -1,14 +1,21 @@
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+package FileUtils;
+
+import FileUtils.FileFilters.FileFileFilter;
+import FileUtils.FileFilters.IOFileFilter;
+import FileUtils.FileFilters.SuffixFileFilter;
+
+import java.io.*;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 // File based operations. Mostly for copying the livery.
 public class FileOps {
 
@@ -135,5 +142,137 @@ public class FileOps {
             throw new IOException("Failed to copy full contents from '" + srcFile + "' to '" + destFile
                     + "' Expected length: " + srcLen + " Actual: " + dstLen);
         }
+    }
+
+// Folder deletion
+
+
+    public static void deleteDirectory(final File directory) throws IOException {
+        Objects.requireNonNull(directory, "directory");
+        if (!directory.exists()) {
+            return;
+        }
+        if (!isSymlink(directory)) {
+            cleanDirectory(directory);
+        }
+        delete(directory);
+    }
+
+    private static File[] listFiles(final File directory, final FileFilter fileFilter) throws IOException {
+        requireDirectoryExists(directory, "directory");
+        final File[] files = fileFilter == null ? directory.listFiles() : directory.listFiles(fileFilter);
+        if (files == null) {
+            // null if the directory does not denote a directory, or if an I/O error occurs.
+            throw new IOException("Unknown I/O error listing contents of directory: " + directory);
+        }
+        return files;
+    }
+
+
+    public static Collection<File> listFiles(final File directory, final String[] extensions, final boolean recursive) {
+        try {
+            return toList(streamFiles(directory, recursive, extensions));
+        } catch (final IOException e) {
+            throw new UncheckedIOException(directory.toString(), e);
+        }
+    }
+
+
+    public static Stream<File> streamFiles(final File directory, final boolean recursive, final String... extensions)
+            throws IOException {
+        final IOFileFilter filter = extensions == null ? FileFileFilter.INSTANCE
+                : FileFileFilter.INSTANCE.and(new SuffixFileFilter(toSuffixes(extensions)));
+        return PathUtils.walk(directory.toPath(), filter, toMaxDepth(recursive), false).map(Path::toFile);
+    }
+
+
+
+    public static void cleanDirectory(final File directory) throws IOException {
+        final File[] files = listFiles(directory, null);
+
+        final List<Exception> causeList = new ArrayList<>();
+        for (final File file : files) {
+            try {
+                forceDelete(file);
+            } catch (final IOException ioe) {
+                causeList.add(ioe);
+            }
+        }
+
+        if (!causeList.isEmpty()) {
+            throw new IOExceptionList(directory.toString(), causeList);
+        }
+    }
+
+
+    public static boolean isSymlink(final File file) {
+        return file != null ? Files.isSymbolicLink(file.toPath()) : false;
+    }
+
+
+    public static File delete(final File file) throws IOException {
+        Objects.requireNonNull(file, "file");
+        Files.delete(file.toPath());
+        return file;
+    }
+
+
+
+    public static void forceDelete(final File file) throws IOException {
+        Objects.requireNonNull(file, "file");
+        final Counters.PathCounters deleteCounters;
+        try {
+            deleteCounters = PathUtils.delete(file.toPath(), PathUtils.EMPTY_LINK_OPTION_ARRAY,
+                    StandardDeleteOption.OVERRIDE_READ_ONLY);
+        } catch (final IOException e) {
+            throw new IOException("Cannot delete file: " + file, e);
+        }
+
+        if (deleteCounters.getFileCounter().get() < 1 && deleteCounters.getDirectoryCounter().get() < 1) {
+            // didn't find a file to delete.
+            throw new FileNotFoundException("File does not exist: " + file);
+        }
+    }
+
+
+    private static List<File> toList(final Stream<File> stream) {
+        return stream.collect(Collectors.toList());
+    }
+
+
+    private static int toMaxDepth(final boolean recursive) {
+        return recursive ? Integer.MAX_VALUE : 1;
+    }
+
+    private static String[] toSuffixes(final String... extensions) {
+        Objects.requireNonNull(extensions, "extensions");
+        final String[] suffixes = new String[extensions.length];
+        for (int i = 0; i < extensions.length; i++) {
+            suffixes[i] = "." + extensions[i];
+        }
+        return suffixes;
+    }
+
+    private static File requireDirectoryExists(final File directory, final String name) {
+        requireExists(directory, name);
+        requireDirectory(directory, name);
+        return directory;
+    }
+
+    private static File requireDirectory(final File directory, final String name) {
+        Objects.requireNonNull(directory, name);
+        if (!directory.isDirectory()) {
+            throw new IllegalArgumentException("Parameter '" + name + "' is not a directory: '" + directory + "'");
+        }
+        return directory;
+    }
+
+    private static File requireExists(final File file, final String fileParamName) {
+        Objects.requireNonNull(file, fileParamName);
+        if (!file.exists()) {
+            throw new IllegalArgumentException(
+                    "File system element for parameter '" + fileParamName + "' does not exist: '" + file + "'");
+        }
+        return file;
     }
 }

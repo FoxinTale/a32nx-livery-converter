@@ -1,3 +1,5 @@
+import FileUtils.FileOps;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -50,14 +52,44 @@ public class FindLiveries {
 
 		addFilestoList(newLiveries, newLiveryPaths);
 
-		try {
-			FileOps.copyDirectory(baseLiveries.get(0), newLiveries.get(0));
+		/*try {
+			FileUtils.FileOps.copyDirectory(baseLiveries.get(0), newLiveries.get(0));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+*/
+		//System.out.println(newLiveries.get(0).getAbsolutePath());
+		String liveryFolderContents[];
+		File oldSimObjectFolder = null;
+		File newSimObjectFolder;
 
+		File liveryObject = new File(newLiveries.get(0).getAbsolutePath() + "\\SimObjects\\AirPlanes\\");
+		liveryFolderContents = liveryObject.list();
+		for(int i = 0; i < liveryFolderContents.length; i++){
+			if(liveryFolderContents[i].contains("Asobo_A320_NEO")){
+				oldSimObjectFolder = new File(liveryObject.getAbsolutePath() + "\\" + liveryFolderContents[i]);
+			}
+		}
+
+		StringBuilder newSimObjectSB = new StringBuilder();
+
+		newSimObjectSB.append(oldSimObjectFolder.getAbsolutePath());
+		newSimObjectFolder = new File(newSimObjectSB.toString().replace("Asobo", "FlyByWire"));
+		newSimObjectSB.delete(0, newSimObjectSB.length());
+
+
+		try {
+			FileOps.copyDirectory(oldSimObjectFolder, newSimObjectFolder);
+			FileOps.deleteDirectory(oldSimObjectFolder);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println(newSimObjectFolder.getAbsolutePath());
+		
+		// System.out.println(liveryObject.getAbsolutePath());
 
 	}
+
 
 
 	public static ArrayList<String> scanCommunityFolder(ArrayList<String> contents){
@@ -116,7 +148,6 @@ public class FindLiveries {
 			item = new File(filePaths.get(i));
 			fileList.add(item);
 		}
-
 		return fileList;
 	}
 
