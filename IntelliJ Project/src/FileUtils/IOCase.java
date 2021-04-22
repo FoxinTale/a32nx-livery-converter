@@ -34,27 +34,6 @@ public enum IOCase {
         return name;
     }
 
-    public boolean isCaseSensitive() {
-        return sensitive;
-    }
-
-    public int checkCompareTo(final String str1, final String str2) {
-        Objects.requireNonNull(str1, "str1");
-        Objects.requireNonNull(str2, "str2");
-        return sensitive ? str1.compareTo(str2) : str1.compareToIgnoreCase(str2);
-    }
-
-    public boolean checkEquals(final String str1, final String str2) {
-        Objects.requireNonNull(str1, "str1");
-        Objects.requireNonNull(str2, "str2");
-        return sensitive ? str1.equals(str2) : str1.equalsIgnoreCase(str2);
-    }
-
-
-    public boolean checkStartsWith(final String str, final String start) {
-        return str != null && start != null && str.regionMatches(!sensitive, 0, start, 0, start.length());
-    }
-
 
     public boolean checkEndsWith(final String str, final String end) {
         if (str == null || end == null) {

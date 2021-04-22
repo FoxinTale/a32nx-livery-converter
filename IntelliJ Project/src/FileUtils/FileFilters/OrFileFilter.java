@@ -18,10 +18,6 @@ public class OrFileFilter extends AbstractFileFilter implements ConditionalFileF
     private final List<IOFileFilter> fileFilters;
 
 
-    public OrFileFilter() {
-        this(0);
-    }
-
     private OrFileFilter(final ArrayList<IOFileFilter> initialList) {
         this.fileFilters = Objects.requireNonNull(initialList, "initialList");
     }
@@ -30,19 +26,10 @@ public class OrFileFilter extends AbstractFileFilter implements ConditionalFileF
         this(new ArrayList<>(initialCapacity));
     }
 
-    public OrFileFilter(final IOFileFilter... fileFilters) {
-        this(Objects.requireNonNull(fileFilters, "fileFilters").length);
-        addFileFilter(fileFilters);
-    }
-
     public OrFileFilter(final IOFileFilter filter1, final IOFileFilter filter2) {
         this(2);
         addFileFilter(filter1);
         addFileFilter(filter2);
-    }
-
-    public OrFileFilter(final List<IOFileFilter> fileFilters) {
-        this(new ArrayList<>(Objects.requireNonNull(fileFilters, "fileFilters")));
     }
 
 
@@ -79,12 +66,6 @@ public class OrFileFilter extends AbstractFileFilter implements ConditionalFileF
     @Override
     public void addFileFilter(final IOFileFilter fileFilter) {
         this.fileFilters.add(Objects.requireNonNull(fileFilter, "fileFilter"));
-    }
-
-    public void addFileFilter(final IOFileFilter... fileFilters) {
-        for (final IOFileFilter fileFilter : Objects.requireNonNull(fileFilters, "fileFilters")) {
-            addFileFilter(fileFilter);
-        }
     }
 
     @Override

@@ -146,14 +146,6 @@ public class Counters {
     }
 
 
-    private final static class BigIntegerPathCounters extends AbstractPathCounters {
-        protected BigIntegerPathCounters() {
-            super(Counters.bigIntegerCounter(), Counters.bigIntegerCounter(), Counters.bigIntegerCounter());
-        }
-
-    }
-
-
     public interface Counter {
         void add(long val);
         long get();
@@ -234,48 +226,6 @@ public class Counters {
     }
 
 
-    private final static class NoopCounter implements Counter {
-
-        static final NoopCounter INSTANCE = new NoopCounter();
-
-        @Override
-        public void add(final long add) {
-            // noop
-        }
-
-        @Override
-        public long get() {
-            return 0;
-        }
-
-        @Override
-        public BigInteger getBigInteger() {
-            return BigInteger.ZERO;
-        }
-
-        @Override
-        public Long getLong() {
-            return 0L;
-        }
-
-        @Override
-        public void increment() {
-            // noop
-        }
-
-    }
-
-    private static final class NoopPathCounters extends AbstractPathCounters {
-
-        static final NoopPathCounters INSTANCE = new NoopPathCounters();
-
-        private NoopPathCounters() {
-            super(Counters.noopCounter(), Counters.noopCounter(), Counters.noopCounter());
-        }
-
-    }
-
-
     public interface PathCounters {
         Counter getByteCounter();
         Counter getDirectoryCounter();
@@ -290,9 +240,6 @@ public class Counters {
     public static Counter bigIntegerCounter() {
         return new BigIntegerCounter();
     }
-    public static PathCounters bigIntegerPathCounters() {
-        return new BigIntegerPathCounters();
-    }
 
     public static Counter longCounter() {
         return new LongCounter();
@@ -302,12 +249,4 @@ public class Counters {
         return new LongPathCounters();
     }
 
-
-    public static Counter noopCounter() {
-        return NoopCounter.INSTANCE;
-    }
-
-    public static PathCounters noopPathCounters() {
-        return NoopPathCounters.INSTANCE;
-    }
 }

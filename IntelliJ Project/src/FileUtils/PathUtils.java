@@ -4,7 +4,6 @@ import FileUtils.FileFilters.PathFilter;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.net.URI;
 import java.nio.file.*;
 import java.nio.file.attribute.*;
 import java.util.ArrayList;
@@ -14,13 +13,11 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public class PathUtils {
-    public static final DeleteOption[] EMPTY_DELETE_OPTION_ARRAY = new DeleteOption[0];
     public static final LinkOption[] EMPTY_LINK_OPTION_ARRAY = new LinkOption[0];
     public static final LinkOption[] NOFOLLOW_LINK_OPTION_ARRAY = new LinkOption[] {LinkOption.NOFOLLOW_LINKS};
 
     public static Counters.PathCounters delete(final Path path, final LinkOption[] linkOptions,
                                                final DeleteOption... deleteOptions) throws IOException {
-        // File deletion through Files deletes links, not targets, so use LinkOption.NOFOLLOW_LINKS.
         return Files.isDirectory(path, linkOptions) ? deleteDirectory(path, linkOptions, deleteOptions)
                 : deleteFile(path, linkOptions, deleteOptions);
     }
@@ -38,22 +35,6 @@ public class PathUtils {
         return visitor;
     }
 
-    public static <T extends FileVisitor<? super Path>> T visitFileTree(final T visitor, final Path start,
-      final Set<FileVisitOption> options, final int maxDepth) throws IOException {
-        Files.walkFileTree(start, options, maxDepth, visitor);
-        return visitor;
-    }
-
-    public static <T extends FileVisitor<? super Path>> T visitFileTree(final T visitor, final String first,
-        final String... more) throws IOException {
-        return visitFileTree(visitor, Paths.get(first, more));
-    }
-
-    public static <T extends FileVisitor<? super Path>> T visitFileTree(final T visitor, final URI uri)
-            throws IOException {
-        return visitFileTree(visitor, Paths.get(uri));
-    }
-
     public static boolean isEmptyDirectory(final Path directory) throws IOException {
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
             return !directoryStream.iterator().hasNext();
@@ -62,7 +43,7 @@ public class PathUtils {
 
 
     public static Counters.PathCounters deleteFile(final Path file, final LinkOption[] linkOptions,
-                                                   final DeleteOption... deleteOptions) throws NoSuchFileException, IOException {
+                                                   final DeleteOption... deleteOptions) throws IOException {
         if (Files.isDirectory(file, linkOptions)) {
             throw new NoSuchFileException(file.toString());
         }
@@ -79,7 +60,8 @@ public class PathUtils {
         return pathCounts;
     }
 
-    public static Path setReadOnly(final Path path, final boolean readOnly, final LinkOption... linkOptions)
+
+    public static void setReadOnly(final Path path, final boolean readOnly, final LinkOption... linkOptions)
             throws IOException {
         final List<Exception> causeList = new ArrayList<>(2);
         final DosFileAttributeView fileAttributeView = Files.getFileAttributeView(path, DosFileAttributeView.class,
@@ -87,7 +69,7 @@ public class PathUtils {
         if (fileAttributeView != null) {
             try {
                 fileAttributeView.setReadOnly(readOnly);
-                return path;
+                return;
             } catch (final IOException e) {
                 // ignore for now, retry with PosixFileAttributeView
                 causeList.add(e);
@@ -105,7 +87,8 @@ public class PathUtils {
             permissions.remove(PosixFilePermission.GROUP_WRITE);
             permissions.remove(PosixFilePermission.OTHERS_WRITE);
             try {
-                return Files.setPosixFilePermissions(path, permissions);
+                Files.setPosixFilePermissions(path, permissions);
+                return;
             } catch (final IOException e) {
                 causeList.add(e);
             }

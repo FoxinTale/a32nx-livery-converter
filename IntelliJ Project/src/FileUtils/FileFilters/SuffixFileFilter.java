@@ -7,7 +7,6 @@ import java.io.Serializable;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.List;
 import java.util.Objects;
 
 public class SuffixFileFilter extends AbstractFileFilter implements Serializable {
@@ -16,35 +15,9 @@ public class SuffixFileFilter extends AbstractFileFilter implements Serializable
     private final String[] suffixes;
     private final IOCase caseSensitivity;
 
-    public SuffixFileFilter(final List<String> suffixes) {
-        this(suffixes, IOCase.SENSITIVE);
-    }
-
-    public SuffixFileFilter(final List<String> suffixes, final IOCase caseSensitivity) {
-        if (suffixes == null) {
-            throw new IllegalArgumentException("The list of suffixes must not be null");
-        }
-        this.suffixes = suffixes.toArray(EMPTY_STRING_ARRAY);
-        this.caseSensitivity = caseSensitivity == null ? IOCase.SENSITIVE : caseSensitivity;
-    }
-
-
-    public SuffixFileFilter(final String suffix) {
-        this(suffix, IOCase.SENSITIVE);
-    }
-
 
     public SuffixFileFilter(final String... suffixes) {
         this(suffixes, IOCase.SENSITIVE);
-    }
-
-
-    public SuffixFileFilter(final String suffix, final IOCase caseSensitivity) {
-        if (suffix == null) {
-            throw new IllegalArgumentException("The suffix must not be null");
-        }
-        this.suffixes = new String[] {suffix};
-        this.caseSensitivity = caseSensitivity == null ? IOCase.SENSITIVE : caseSensitivity;
     }
 
 
@@ -72,7 +45,7 @@ public class SuffixFileFilter extends AbstractFileFilter implements Serializable
 
     @Override
     public FileVisitResult accept(final Path file, final BasicFileAttributes attributes) {
-        return toFileVisitResult(accept(Objects.toString(file.getFileName(), null)), file);
+        return toFileVisitResult(accept(Objects.toString(file.getFileName(), null)));
     }
 
     private boolean accept(final String name) {
@@ -83,7 +56,6 @@ public class SuffixFileFilter extends AbstractFileFilter implements Serializable
         }
         return false;
     }
-
 
     @Override
     public String toString() {

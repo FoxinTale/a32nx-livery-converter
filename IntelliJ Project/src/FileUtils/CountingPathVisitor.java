@@ -15,14 +15,6 @@ public class CountingPathVisitor extends SimplePathVisitor{
 
     static final String[] EMPTY_STRING_ARRAY = new String[0];
 
-    public static CountingPathVisitor withBigIntegerCounters() {
-        return new CountingPathVisitor(Counters.bigIntegerPathCounters());
-    }
-
-    public static CountingPathVisitor withLongCounters() {
-        return new CountingPathVisitor(Counters.longPathCounters());
-    }
-
     private final Counters.PathCounters pathCounters;
     private final PathFilter fileFilter;
     private final PathFilter dirFilter;
@@ -63,7 +55,7 @@ public class CountingPathVisitor extends SimplePathVisitor{
 
     @Override
     public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
-        updateDirCounter(dir, exc);
+        updateDirCounter();
         return FileVisitResult.CONTINUE;
     }
 
@@ -79,12 +71,12 @@ public class CountingPathVisitor extends SimplePathVisitor{
     }
 
 
-    protected void updateDirCounter(final Path dir, final IOException exc) {
+    protected void updateDirCounter() {
         pathCounters.getDirectoryCounter().increment();
     }
 
 
-    protected void updateFileCounters(final Path file, final BasicFileAttributes attributes) {
+    protected void updateFileCounters(final BasicFileAttributes attributes) {
         pathCounters.getFileCounter().increment();
         pathCounters.getByteCounter().add(attributes.size());
     }
@@ -92,7 +84,7 @@ public class CountingPathVisitor extends SimplePathVisitor{
     @Override
     public FileVisitResult visitFile(final Path file, final BasicFileAttributes attributes) throws IOException {
         if (Files.exists(file) && fileFilter.accept(file, attributes) == FileVisitResult.CONTINUE) {
-            updateFileCounters(file, attributes);
+            updateFileCounters(attributes);
         }
         return FileVisitResult.CONTINUE;
     }

@@ -43,13 +43,11 @@ public class TrueFileFilter implements IOFileFilter, Serializable {
 
     @Override
     public IOFileFilter or(final IOFileFilter fileFilter) {
-        // TRUE OR expression <=> true
         return INSTANCE;
     }
 
     @Override
     public IOFileFilter and(final IOFileFilter fileFilter) {
-        // TRUE AND expression <=> expression
         return fileFilter;
     }
 

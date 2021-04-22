@@ -9,24 +9,9 @@ import java.util.Objects;
 public class DeletingPathVisitor extends CountingPathVisitor {
 
 
-    public static DeletingPathVisitor withBigIntegerCounters() {
-        return new DeletingPathVisitor(Counters.bigIntegerPathCounters());
-    }
-
-
-    public static DeletingPathVisitor withLongCounters() {
-        return new DeletingPathVisitor(Counters.longPathCounters());
-    }
-
     private final String[] skip;
     private final boolean overrideReadOnly;
     private final LinkOption[] linkOptions;
-
-
-    public DeletingPathVisitor(final Counters.PathCounters pathCounter, final DeleteOption[] deleteOption,
-                               final String... skip) {
-        this(pathCounter, PathUtils.NOFOLLOW_LINK_OPTION_ARRAY, deleteOption, skip);
-    }
 
 
     public DeletingPathVisitor(final Counters.PathCounters pathCounter, final LinkOption[] linkOptions,
@@ -36,14 +21,9 @@ public class DeletingPathVisitor extends CountingPathVisitor {
         Arrays.sort(temp);
         this.skip = temp;
         this.overrideReadOnly = StandardDeleteOption.overrideReadOnly(deleteOption);
-        // TODO Files.deleteIfExists() never follows links, so use LinkOption.NOFOLLOW_LINKS in other calls to Files.
         this.linkOptions = linkOptions == null ? PathUtils.NOFOLLOW_LINK_OPTION_ARRAY : linkOptions.clone();
     }
 
-
-    public DeletingPathVisitor(final Counters.PathCounters pathCounter, final String... skip) {
-        this(pathCounter, PathUtils.EMPTY_DELETE_OPTION_ARRAY, skip);
-    }
 
     private boolean accept(final Path path) {
         return Arrays.binarySearch(skip, Objects.toString(path.getFileName(), null)) < 0;
@@ -90,24 +70,21 @@ public class DeletingPathVisitor extends CountingPathVisitor {
     @Override
     public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
         if (accept(file)) {
-            // delete files and valid links, respecting linkOptions
             if (Files.exists(file, linkOptions)) {
                 if (overrideReadOnly) {
                     PathUtils.setReadOnly(file, false, linkOptions);
                 }
                 Files.deleteIfExists(file);
             }
-            // invalid links will survive previous delete, different approach needed:
             if (Files.isSymbolicLink(file)) {
                 try {
-                    // deleteIfExists does not work for this case
                     Files.delete(file);
                 } catch (final NoSuchFileException e) {
                     // ignore
                 }
             }
         }
-        updateFileCounters(file, attrs);
+        updateFileCounters(attrs);
         return FileVisitResult.CONTINUE;
     }
 }

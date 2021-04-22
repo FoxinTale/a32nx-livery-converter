@@ -10,29 +10,8 @@ public class IOExceptionList extends IOException {
     private final List<? extends Throwable> causeList;
 
 
-    public IOExceptionList(final List<? extends Throwable> causeList) {
-        this(String.format("%,d exceptions: %s", causeList == null ? 0 : causeList.size(), causeList), causeList);
-    }
-
     public IOExceptionList(final String message, final List<? extends Throwable> causeList) {
         super(message, causeList == null ? null : causeList.get(0));
         this.causeList = causeList == null ? Collections.emptyList() : causeList;
     }
-
-    public <T extends Throwable> T getCause(final int index) {
-        return (T) causeList.get(index);
-    }
-
-    public <T extends Throwable> T getCause(final int index, final Class<T> clazz) {
-        return (T) causeList.get(index);
-    }
-
-    public <T extends Throwable> List<T> getCauseList() {
-        return (List<T>) causeList;
-    }
-
-    public <T extends Throwable> List<T> getCauseList(final Class<T> clazz) {
-        return (List<T>) causeList;
-    }
-
 }

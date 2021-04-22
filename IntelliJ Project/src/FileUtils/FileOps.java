@@ -18,10 +18,6 @@ import java.util.stream.Stream;
 
 // File based operations. Mostly for copying the livery.
 public class FileOps {
-
-
-// Below here is copied from Apache File Utils
-
     public static void copyDirectory(final File srcDir, final File destDir) throws IOException {
         copyDirectory(srcDir, destDir, true);
     }
@@ -162,7 +158,6 @@ public class FileOps {
         requireDirectoryExists(directory, "directory");
         final File[] files = fileFilter == null ? directory.listFiles() : directory.listFiles(fileFilter);
         if (files == null) {
-            // null if the directory does not denote a directory, or if an I/O error occurs.
             throw new IOException("Unknown I/O error listing contents of directory: " + directory);
         }
         return files;
@@ -210,10 +205,9 @@ public class FileOps {
     }
 
 
-    public static File delete(final File file) throws IOException {
+    public static void delete(final File file) throws IOException {
         Objects.requireNonNull(file, "file");
         Files.delete(file.toPath());
-        return file;
     }
 
 
@@ -253,26 +247,23 @@ public class FileOps {
         return suffixes;
     }
 
-    private static File requireDirectoryExists(final File directory, final String name) {
+    private static void requireDirectoryExists(final File directory, final String name) {
         requireExists(directory, name);
         requireDirectory(directory, name);
-        return directory;
     }
 
-    private static File requireDirectory(final File directory, final String name) {
+    private static void requireDirectory(final File directory, final String name) {
         Objects.requireNonNull(directory, name);
         if (!directory.isDirectory()) {
             throw new IllegalArgumentException("Parameter '" + name + "' is not a directory: '" + directory + "'");
         }
-        return directory;
     }
 
-    private static File requireExists(final File file, final String fileParamName) {
+    private static void requireExists(final File file, final String fileParamName) {
         Objects.requireNonNull(file, fileParamName);
         if (!file.exists()) {
             throw new IllegalArgumentException(
                     "File system element for parameter '" + fileParamName + "' does not exist: '" + file + "'");
         }
-        return file;
     }
 }

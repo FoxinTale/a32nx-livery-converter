@@ -10,47 +10,25 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class AndFileFilter
-        extends AbstractFileFilter
+public class AndFileFilter extends AbstractFileFilter
         implements ConditionalFileFilter, Serializable {
 
     private static final long serialVersionUID = 7215974688563965257L;
-
-
     private final List<IOFileFilter> fileFilters;
-
-
-    public AndFileFilter() {
-        this(0);
-    }
-
 
     private AndFileFilter(final ArrayList<IOFileFilter> initialList) {
         this.fileFilters = Objects.requireNonNull(initialList, "initialList");
     }
 
-
     private AndFileFilter(final int initialCapacity) {
         this(new ArrayList<>(initialCapacity));
     }
-
 
     public AndFileFilter(final IOFileFilter filter1, final IOFileFilter filter2) {
         this(2);
         addFileFilter(filter1);
         addFileFilter(filter2);
     }
-
-
-    public AndFileFilter(final IOFileFilter... fileFilters) {
-        this(Objects.requireNonNull(fileFilters, "fileFilters").length);
-        addFileFilter(fileFilters);
-    }
-
-    public AndFileFilter(final List<IOFileFilter> fileFilters) {
-        this(new ArrayList<>(Objects.requireNonNull(fileFilters, "fileFilters")));
-    }
-
 
     @Override
     public boolean accept(final File file) {
@@ -97,13 +75,6 @@ public class AndFileFilter
     @Override
     public void addFileFilter(final IOFileFilter fileFilter) {
         this.fileFilters.add(Objects.requireNonNull(fileFilter, "fileFilter"));
-    }
-
-
-    public void addFileFilter(final IOFileFilter... fileFilters) {
-        for (final IOFileFilter fileFilter : Objects.requireNonNull(fileFilters, "fileFilters")) {
-            addFileFilter(fileFilter);
-        }
     }
 
 

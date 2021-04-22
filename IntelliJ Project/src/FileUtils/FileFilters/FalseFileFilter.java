@@ -44,13 +44,11 @@ public class FalseFileFilter implements IOFileFilter, Serializable {
 
     @Override
     public IOFileFilter and(final IOFileFilter fileFilter) {
-        // FALSE AND expression <=> FALSE
         return INSTANCE;
     }
 
     @Override
     public IOFileFilter or(final IOFileFilter fileFilter) {
-        // FALSE OR expression <=> expression
         return fileFilter;
     }
 }
