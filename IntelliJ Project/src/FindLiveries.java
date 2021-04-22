@@ -1,5 +1,3 @@
-import FileUtils.FileOps;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,27 +6,26 @@ import java.util.ArrayList;
 public class FindLiveries {
 
 
-	static ArrayList<File> aircraftConfigs = new ArrayList<File>();
-	static ArrayList<File> textureConfigs = new ArrayList<File>();
+	//static ArrayList<File> aircraftConfigs = new ArrayList<File>();
+	//static ArrayList<File> textureConfigs = new ArrayList<File>();
 
 
 	public static void getInstalledLiveries() {
 		ArrayList<String> installedAddons = new ArrayList<>();
 		ArrayList<String> baseLiveryPaths = new ArrayList<>();
+
 		ArrayList<String> trueLiveryPaths = new ArrayList<>();
 		ArrayList<String> newLiveryPaths = new ArrayList<>();
+
 		ArrayList<String> newLiveryFolders = new ArrayList<>();
+		ArrayList<String> oldLiveryFolders = new ArrayList<>();
 
 		ArrayList<File> baseLiveries = new ArrayList<>();
+		ArrayList<File> trueLiveries = new ArrayList<>();
 		ArrayList<File> newLiveries = new ArrayList<>();
+
 		ArrayList<File> oldSimObjects = new ArrayList<>();
 		ArrayList<File> newSimObjects = new ArrayList<>();
-
-		String liveryFolderContents[] = new String[0];
-
-		File oldSimObjectFolder = null;
-		File newSimObjectFolder;
-		File liveryObject = null;
 
 		StringBuilder liverySB = new StringBuilder();
 		StringBuilder simObjectSB = new StringBuilder();
@@ -39,18 +36,30 @@ public class FindLiveries {
 		addFilestoList(baseLiveries, baseLiveryPaths);
 
 		for(int i = 0; i < baseLiveries.size(); i++){
+			liverySB.append(baseLiveries.get(i).getAbsolutePath());
+			oldLiveryFolders.add(liverySB.substring(liverySB.lastIndexOf("\\") + 1, liverySB.length()));
+			liverySB.delete(0, liverySB.length());
+
 			if(SymlinkHandling.checkForSymlink(baseLiveries.get(i))){
+				// If liveries are symlinked.
 				try {
 					trueLiveryPaths.add(Files.readSymbolicLink(baseLiveries.get(i).toPath()).toString());
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			} else {
+				// Liveries are not symlinked.
 				trueLiveryPaths.add(baseLiveries.get(i).getAbsolutePath());
 			}
 		}
 
+		addFilestoList(trueLiveries, trueLiveryPaths);
+
 		for(int i = 0; i < trueLiveryPaths.size(); i++){
+			if(!(liverySB.length() == 0)){
+				liverySB.delete(0, liverySB.length());
+			}
+
 			if(trueLiveryPaths.get(i).contains("Asobo_A320_NEO")){
 				liverySB.append(trueLiveryPaths.get(i));
 				newLiveryPaths.add(liverySB.toString().replace("Asobo", "FlyByWire"));
@@ -62,34 +71,12 @@ public class FindLiveries {
 
 		addFilestoList(newLiveries, newLiveryPaths);
 
- //Functional copying of all of the existing libraries
-/*
-		try {
-			for(int i = 0; i < baseLiveries.size(); i++){
-				FileUtils.FileOps.copyDirectory(baseLiveries.get(i), newLiveries.get(i));
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-*/
-
-
-		//File liveryObject = new File(newLiveries.get(0).getAbsolutePath() + "\\SimObjects\\AirPlanes\\");
-		//System.out.println(liveryObject.getAbsolutePath());
-		//liveryFolderContents = liveryObject.list();
-
-		 oldSimObjects = fillSubFolderList(baseLiveries, oldSimObjects);
-		 newSimObjects = fillSubFolderList(newLiveries, newSimObjects);
-
-
-		for(int i = 0; i < liveryFolderContents.length; i++){
-			if(liveryFolderContents[i].contains("Asobo_A320_NEO")){
-				//oldSimObjectFolder = new File(liveryObject.getAbsolutePath() + "\\" + liveryFolderContents[i]);
-				liveryObject = new File(newLiveries.get(i).getAbsolutePath() + "\\SimObjects\\AirPlanes\\");
-				oldSimObjects.add(new File(liveryObject.getAbsolutePath() + "\\" + liveryFolderContents[i]));
-			}
+		for(int i = 0; i < newLiveries.size(); i++){
+			FileOps.copyLivery(trueLiveries.get(i), newLiveries.get(i));
 		}
 
+		 oldSimObjects = fillSubFolderList(newLiveryPaths, oldSimObjects, oldLiveryFolders);
+		 newSimObjects = fillSubFolderList(newLiveryPaths, newSimObjects, newLiveryFolders);
 
 		for(int i = 0; i < oldSimObjects.size(); i++){
 			simObjectSB.append(oldSimObjects.get(i).getAbsolutePath());
@@ -97,35 +84,33 @@ public class FindLiveries {
 			simObjectSB.delete(0, simObjectSB.length());
 		}
 
+		for(int i = 0; i < oldSimObjects.size(); i++){
+			File newObject;
+			StringBuilder newPathSB = new StringBuilder();
 
-		for(int i = 0; i< newLiveryFolders.size(); i++){
-			System.out.println(newLiveryFolders.get(i));
-
+			if(!oldSimObjects.get(i).exists()){
+				newPathSB.append(oldSimObjects.get(i).getAbsolutePath());
+				int underscoreIndex = newPathSB.lastIndexOf("_");
+				newPathSB.replace(underscoreIndex, underscoreIndex + 1, "-");
+				newObject = new File(newPathSB.toString());
+				oldSimObjects.set(i, newObject);
+			}
 		}
 
+		for(int i = 0; i < newSimObjects.size() - 1; i++){
+			try {
+				FileOps.copySimObjects(oldSimObjects.get(i), newSimObjects.get(i));
+			} catch(IndexOutOfBoundsException ignored){
 
-/*
-
-
-
-		try {
-			FileOps.copyDirectory(oldSimObjectFolder, newSimObjectFolder);
-			FileOps.deleteDirectory(oldSimObjectFolder);
-		} catch (IOException e) {
-			e.printStackTrace();
+			}
 		}
-
-		System.out.println(newSimObjectFolder.getAbsolutePath());*/
-
-		// System.out.println(liveryObject.getAbsolutePath());
-
 	}
 
 
 	public static ArrayList<String> scanCommunityFolder(ArrayList<String> contents){
 		File packages = new File(GetPlatform.finalInstallPath);
 		File communityFolder = null;
-		String communityContents[];
+		String[] communityContents;
 		String communityPath;
 		File manifestFile;
 
@@ -174,36 +159,16 @@ public class FindLiveries {
 	}
 
 
-	public static ArrayList<File> fillSubFolderList(ArrayList<File> mainfolders, ArrayList<File> subfolders){
-		String folderContents[] = new String[0];
-		String folderName = null;
-		ArrayList<File> liveryFolders = new ArrayList();
-
+	public static ArrayList<File> fillSubFolderList(ArrayList<String> mainfolders, ArrayList<File> subfolders, ArrayList<String> folderNames){
+		ArrayList<File> liveryFolders = new ArrayList<>();
 
 		for(int i = 0; i < mainfolders.size(); i++) {
-			liveryFolders.add(new File( mainfolders.get(i).getAbsolutePath() + "\\SimObjects\\AirPlanes\\"));
+			liveryFolders.add(new File( mainfolders.get(i) + "\\SimObjects\\AirPlanes\\"));
 		}
-
 
 		for(int i = 0; i < liveryFolders.size(); i++){
-			folderContents = liveryFolders.get(i).list();
-			//System.out.println(liveryFolders.get(i).getAbsolutePath() + "\\" + folderContents[0]);
-			subfolders.add(new File(liveryFolders.get(i).getAbsolutePath() + "\\" + folderContents[0]));
+			subfolders.add(new File(liveryFolders.get(i).getAbsolutePath() + "\\" + folderNames.get(i)));
 		}
-
-
-
-		//folder
-		//System.out.println(folderContents[0]);
-			//folderContents = mainfolders.get(i).list();
-			//for(int j = 0; j < folderContents.length; j++){
-			//	System.out.println(folderContents[j]);
-			//	if(folderContents[j].contains("Asobo") || folderContents[j].contains("FlyByWire")){
-			//		folderName = folderContents[j];
-			//	}
-		//	}
-			//subfolders.add(new File());
-
 		return subfolders;
 	}
 

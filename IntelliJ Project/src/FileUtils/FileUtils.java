@@ -16,8 +16,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-// File based operations. Mostly for copying the livery.
-public class FileOps {
+public class FileUtils {
+
     public static void copyDirectory(final File srcDir, final File destDir) throws IOException {
         copyDirectory(srcDir, destDir, true);
     }
