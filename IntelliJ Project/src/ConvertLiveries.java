@@ -9,6 +9,8 @@ public class ConvertLiveries {
 
 	static String textureFolderName = null;
 	static String modelFolderName = null;
+
+
 	
 	public static void convertAircraftConfig(File aircraftConfig, File path) {
 		
