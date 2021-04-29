@@ -10,8 +10,23 @@ public class ConvertLiveries {
 	static String textureFolderName = null;
 	static String modelFolderName = null;
 
+	public static void copyLiveries() {
+		for(int i = 0; i < FindLiveries.installedLiveries.size(); i++){
+			try{
+				FileOps.copyLivery(FindLiveries.installedLiveries.get(i), FindLiveries.newLiveries.get(i));
+			} catch(IndexOutOfBoundsException ignored){
 
-	
+			}
+		}
+
+		//for(int j = 0; j < FindLiveries.simObjects.size(); j++){
+			//System.out.println(FindLiveries.simObjects.get(j).getAbsolutePath());
+			//FileOps.copySimObjects(FindLiveries.simObjects.get(j), FindLiveries.newSimObjects.get(j));
+		//}
+
+	}
+
+
 	public static void convertAircraftConfig(File aircraftConfig, File path) {
 		
 		if(!aircraftConfig.exists()) {
