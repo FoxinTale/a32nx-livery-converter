@@ -1,7 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,10 +16,6 @@ public class FindLiveries {
 
 	public static void getInstalledLiveries(){
 		ArrayList<String> allAddons = new ArrayList<>();
-		ArrayList<String> simObjectFolderNames = new ArrayList<>();
-		ArrayList<String> oldSimObjects = new ArrayList<>();
-
-		ArrayList<Integer> slashCounts = new ArrayList<>();
 
 		ArrayList<File> addonFiles = new ArrayList<>();
 		ArrayList<File> aircraftConfigs = new ArrayList<>();
@@ -46,22 +41,16 @@ public class FindLiveries {
 			}
 		}
 
-
 		for(int b = 0; b < addonFiles.size(); b++){
 			aircraft = new File(addonFiles.get(b).getAbsolutePath() + "\\SimObjects\\Airplanes\\");
 
 			if(aircraft.exists()){ //If this folder doesn't exist, then it's not an aircraft or a livery.
-				//simObjects.add(aircraft);
 				validAircraft.add(aircraft);
 			}
 		}
 
-		//int size = simObjects.size();
-
-
 		for(int c = 0; c < validAircraft.size(); c++){
 			contents = validAircraft.get(c).list();
-			simObjectFolderNames.add(contents[0]);
 			simObjects.add(new File(validAircraft.get(c).getAbsolutePath() + "\\" + contents[0]));
 		}
 
@@ -70,61 +59,75 @@ public class FindLiveries {
 			aircraftConfigs.add(new File(simObjects.get(d).getAbsolutePath() + "\\aircraft.cfg"));
 		}
 
-
-		//System.out.println(simObjects.size());
 		installedLiveries = checkIfOldLivery(aircraftConfigs);
 		simObjects.clear();
-		//System.out.println(simObjects.size());
 
 		installedLiveries = trimList(installedLiveries);
 		newLiveries = trimList(newLiveries);
 
 		makeNewPaths(installedLiveries, newLiveries);
 
-		String tempObject;
-		// printFileList(newLiveries);
 		for(int e = 0; e < installedLiveries.size(); e++){
 			nameSB.append(newLiveries.get(e));
 			simObjectSB.append(installedLiveries.get(e));
-			//contents = simObjects.get(e).list();
-			//simObjectFolderNames.add(contents[0]);
-			//System.out.println(simObjectSB.substring(simObjectSB.lastIndexOf("\\"), simObjectSB.length()));
-			//tempObject = simObjectSB.substring(simObjectSB.lastIndexOf("\\"), simObjectSB.length());
-			//	tempObject = simObjectSB.substring(simObjectSB.lastIndexOf("Airplanes"), simObjectSB.indexOf("aircraft.cfg"));
-			//simObjectSB.delete(0, simObjectSB.length());
-			//simObjectSB.append(tempObject);
-			//oldSimObjects.add(simObjectSB.substring(simObjectSB.indexOf("\\") + 1, simObjectSB.lastIndexOf("\\")).strip());
-			//nameSB.substring(0, nameSB.indexOf())
-			//System.out.println(installedLiveries);
-			//nameSB.substring(0, nameSB.indexOf("Airplanes") + 10) + oldSimObjects.get(e);
-
-			//installedLiveries.set(e, new File(nameSB.substring(0, nameSB.indexOf("SimObjects"))));
 			simObjects.add(new File(newLiveries.get(e).getAbsolutePath() + "\\SimObjects\\AirPlanes\\"));
 			nameSB.delete(0, nameSB.length());
 			simObjectSB.delete(0, simObjectSB.length());
 		}
 
-		simObjectFolderNames.clear();
+		installedLiveries = removeSpecialDuplicates(installedLiveries);
+		simObjects = removeDuplicates(simObjects);
+		newLiveries = removeDuplicates(newLiveries);
+
+		ConvertLiveries.copyLiveries();
 
 		for(int f = 0; f < simObjects.size(); f++){
-			System.out.println(Arrays.toString(Arrays.stream(simObjects.get(f).list()).toArray()));
-			//simObjectFolderNames.add(contents[0]);
-			//simObjects.set(f, new File(simObjects.get(f).getAbsolutePath() + "\\" +  contents[0]));
+			contents = simObjects.get(f).list();
+			simObjects.set(f, new File(simObjects.get(f).getAbsolutePath() + "\\" +  contents[0]));
 		}
 
+		newSimObjects = makeNewPaths(simObjects, newSimObjects);
 
-		//printFileList(simObjects);
-		//makeNewPaths(installedLiveries, newLiveries);
-		//newSimObjects = makeNewPaths(simObjects, newSimObjects);
+		ConvertLiveries.copySimObjects();
+	}
 
-		//newLiveries.clear();
-		//makeNewPaths(installedLiveries, newLiveries);
 
-		//ConvertLiveries.copyLiveries();
-		System.out.println("Old Simobjects List: ");
-	//	printFileList(simObjects);
-		//printFileList(newSimObjects);
-		//ConvertLiveries.copyLiveries();
+	public static ArrayList<File> removeDuplicates(ArrayList<File> list){
+		ArrayList<File> noDuplicates = new ArrayList<>();
+		for(int i = 0; i < list.size(); i++){
+			if(!noDuplicates.contains(list.get(i))){
+				noDuplicates.add(list.get(i));
+			}
+		}
+		return noDuplicates;
+	}
+
+
+	public static ArrayList<File> removeSpecialDuplicates(ArrayList<File> list){
+		ArrayList<String> newList = new ArrayList<>();
+		ArrayList<File> tempList = new ArrayList<>();
+
+		for(int i = 0; i < list.size(); i++){
+			if(list.get(i).getAbsolutePath().contains("livery")){
+				newList.add(list.get(i).getAbsolutePath());
+			} else{
+				tempList.add(list.get(i));
+			}
+		}
+
+		for(int j = 0; j < newList.size(); j++){
+			if(newList.get(j).contains("a32nx")){
+				newList.remove(j);
+			}
+			else if(newList.get(j).contains("a20n")){
+				newList.remove(j);
+			}
+		}
+
+		for(int k = 0; k < newList.size(); k++){
+			tempList.add(new File(newList.get(k)));
+		}
+		return tempList;
 	}
 
 
@@ -221,11 +224,11 @@ public class FindLiveries {
 					contents.add(communityPath + communityContents[i]);
 					// Has a valid manifest.json file, and is a proper addon / mod.
 				} else {
-					System.out.println(communityContents[i] + " is missing a 'manifest.json' file, thus will not load properly in sim.");
+					Main.printErr(communityContents[i] + " is missing a 'manifest.json' file, thus will not load properly in sim.");
 				}
 			}
 		} else {
-			Main.printErr("Could not find community folder.. How?");
+			Main.printErr("Could not find community folder... How?");
 		}
 		return contents;
 	}

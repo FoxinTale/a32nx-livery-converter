@@ -15,12 +15,10 @@ public class FileOps {
     }
 
 
-    public static void copySimObjects(File oldObjects, File newObjects){
-      //  System.out.println("Old Path: " + oldObjects.getAbsolutePath());
-        //System.out.println("New Path: " + newObjects.getAbsolutePath());
+    public static void copySimObjects(File oldObject, File newObject){
         try {
-            FileUtils.copyDirectory(oldObjects, newObjects);
-            FileUtils.deleteDirectory(oldObjects);
+            FileUtils.copyDirectory(oldObject, newObject);
+            FileUtils.deleteDirectory(oldObject);
         } catch (IOException e) {
             e.printStackTrace();
         }

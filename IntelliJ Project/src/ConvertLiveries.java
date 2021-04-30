@@ -18,17 +18,16 @@ public class ConvertLiveries {
 
 			}
 		}
+	}
 
-		//for(int j = 0; j < FindLiveries.simObjects.size(); j++){
-			//System.out.println(FindLiveries.simObjects.get(j).getAbsolutePath());
-			//FileOps.copySimObjects(FindLiveries.simObjects.get(j), FindLiveries.newSimObjects.get(j));
-		//}
-
+	public static void copySimObjects(){
+		for(int j = 0; j < FindLiveries.simObjects.size(); j++){
+			FileOps.copySimObjects(FindLiveries.simObjects.get(j), FindLiveries.newSimObjects.get(j));
+		}
 	}
 
 
 	public static void convertAircraftConfig(File aircraftConfig, File path) {
-		
 		if(!aircraftConfig.exists()) {
 			// This handles if the folder name has a "-" when the others have a "_" in it.
 			StringBuilder configSB = new StringBuilder();
