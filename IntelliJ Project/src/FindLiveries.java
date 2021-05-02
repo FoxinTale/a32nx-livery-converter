@@ -89,6 +89,10 @@ public class FindLiveries {
 		newSimObjects = makeNewPaths(simObjects, newSimObjects);
 
 		ConvertLiveries.copySimObjects();
+
+
+		ConvertLiveries.findAllFiles();
+		System.out.println();
 	}
 
 
@@ -133,6 +137,7 @@ public class FindLiveries {
 
 	public static ArrayList<File> trimList(ArrayList<File> list){
 		StringBuilder listSB = new StringBuilder();
+
 		for(int i = 0; i < list.size(); i++){
 			listSB.append(list.get(i).getAbsolutePath());
 			list.set(i, new File(listSB.substring(0, listSB.indexOf("SimObjects"))));
@@ -144,16 +149,22 @@ public class FindLiveries {
 
 	public static ArrayList<File> makeNewPaths(ArrayList<File> oldFiles, ArrayList<File> newFiles){
 		String path;
+		Boolean stop = false;
 
 		for(int i = 0; i < oldFiles.size(); i++){
 			path = oldFiles.get(i).getAbsolutePath();
 			if(path.contains("Asobo")){
-				newFiles.add(new File(path.replaceAll("Asobo", "FlyByWire")));
+				if(path.contains("Frex")){
+					newFiles.add(new File(path.replaceAll("Asobo", "FlyByWire")));
+					stop = true;
+				} else {
+					newFiles.add(new File(path.replaceAll("Asobo", "FlyByWire")));
+				}
 			}
-			else if(path.contains("a320")){
+			else if(path.contains("a320") && !stop){
 				newFiles.add(new File(path.replaceAll("a320", "a32nx")));
 			}
-			else if(path.contains("A20N")) {
+			else if(path.contains("A20N") && !stop) {
 				newFiles.add(new File(path.replaceAll("A20N", "A20NX")));
 			} else {
 				newFiles.add(new File(path));
