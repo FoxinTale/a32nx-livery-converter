@@ -1,6 +1,15 @@
 import java.io.IOException;
 import java.io.PrintStream;
+/*
+    To do list, in no particular order:
+    - Convert the manifest file.
+    - Create new symlinks if the livery was simlinked initially.
+    - More code documentation.
+    - Begin outputting things to the user via GUI so they know what is happening.
+    - Add buttons to the GUI for scanning for liveries, and converting.
+    - Look for already converted liveries, and its unconverted counterparts, and ignore them.
 
+*/
 
 // I try to follow the rule of "Have each class do one job, and make it do it well".
 // As well as writing self documenting code as best I can.
@@ -10,9 +19,9 @@ public class Main {
 
     // Good old main.
     public static void main(String[] args) throws IOException {
+
         //redirectOutput();
         // GUI.makeGUI();
-       //  mockup();
         GetPlatform.whichPlatform();
     }
 
@@ -25,13 +34,6 @@ public class Main {
 
     }
 
-    //temporary. For testing purposes only.
-    public static void mockup(){
-        print("Delta livery found");
-        print("Easyjet livery found");
-        print("Conflicting livery -  Whizzair found.");
-
-    }
 
     // Make an error stand out a bit more.
     public static void printErr(String s){

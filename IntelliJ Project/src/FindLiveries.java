@@ -3,7 +3,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class FindLiveries {
@@ -32,7 +31,7 @@ public class FindLiveries {
 
 		// Handling symlinks like a boss.
 		for(int a = 0; a < addonFiles.size(); a++){ //Each letter shows how many for loops I use here.
-			if(SymlinkHandling.checkForSymlink(addonFiles.get(a))) {
+			if(FileOps.checkForSymlink(addonFiles.get(a))) {
 				try {
 					addonFiles.set(a, new File(Files.readSymbolicLink(addonFiles.get(a).toPath()).toString()));
 				} catch (IOException ioe) {
@@ -98,9 +97,9 @@ public class FindLiveries {
 
 	public static ArrayList<File> removeDuplicates(ArrayList<File> list){
 		ArrayList<File> noDuplicates = new ArrayList<>();
-		for(int i = 0; i < list.size(); i++){
-			if(!noDuplicates.contains(list.get(i))){
-				noDuplicates.add(list.get(i));
+		for(int g = 0; g < list.size(); g++){
+			if(!noDuplicates.contains(list.get(g))){
+				noDuplicates.add(list.get(g));
 			}
 		}
 		return noDuplicates;
@@ -111,25 +110,25 @@ public class FindLiveries {
 		ArrayList<String> newList = new ArrayList<>();
 		ArrayList<File> tempList = new ArrayList<>();
 
-		for(int i = 0; i < list.size(); i++){
-			if(list.get(i).getAbsolutePath().contains("livery")){
-				newList.add(list.get(i).getAbsolutePath());
+		for(int h = 0; h < list.size(); h++){
+			if(list.get(h).getAbsolutePath().contains("livery")){
+				newList.add(list.get(h).getAbsolutePath());
 			} else{
-				tempList.add(list.get(i));
+				tempList.add(list.get(h));
+			}
+		}
+
+		for(int i = 0; i < newList.size(); i++){
+			if(newList.get(i).contains("a32nx")){
+				newList.remove(i);
+			}
+			else if(newList.get(i).contains("a20n")){
+				newList.remove(i);
 			}
 		}
 
 		for(int j = 0; j < newList.size(); j++){
-			if(newList.get(j).contains("a32nx")){
-				newList.remove(j);
-			}
-			else if(newList.get(j).contains("a20n")){
-				newList.remove(j);
-			}
-		}
-
-		for(int k = 0; k < newList.size(); k++){
-			tempList.add(new File(newList.get(k)));
+			tempList.add(new File(newList.get(j)));
 		}
 		return tempList;
 	}
@@ -138,9 +137,9 @@ public class FindLiveries {
 	public static ArrayList<File> trimList(ArrayList<File> list){
 		StringBuilder listSB = new StringBuilder();
 
-		for(int i = 0; i < list.size(); i++){
-			listSB.append(list.get(i).getAbsolutePath());
-			list.set(i, new File(listSB.substring(0, listSB.indexOf("SimObjects"))));
+		for(int k = 0; k < list.size(); k++){
+			listSB.append(list.get(k).getAbsolutePath());
+			list.set(k, new File(listSB.substring(0, listSB.indexOf("SimObjects"))));
 			listSB.delete(0, listSB.length());
 		}
 		return list;
@@ -149,10 +148,10 @@ public class FindLiveries {
 
 	public static ArrayList<File> makeNewPaths(ArrayList<File> oldFiles, ArrayList<File> newFiles){
 		String path;
-		Boolean stop = false;
+		boolean stop = false;
 
-		for(int i = 0; i < oldFiles.size(); i++){
-			path = oldFiles.get(i).getAbsolutePath();
+		for(int l = 0; l < oldFiles.size(); l++){
+			path = oldFiles.get(l).getAbsolutePath();
 			if(path.contains("Asobo")){
 				if(path.contains("Frex")){
 					newFiles.add(new File(path.replaceAll("Asobo", "FlyByWire")));
@@ -180,13 +179,13 @@ public class FindLiveries {
 		String currentLine;
 		String oldLivery = "base_container = \"..\\Asobo_A320_NEO\"";
 
-		for(int i = 0; i < configs.size(); i++){
+		for(int m = 0; m < configs.size(); m++){
 			try {
-				configReader = new Scanner(configs.get(i));
+				configReader = new Scanner(configs.get(m));
 				while(configReader.hasNext()){
 					currentLine = configReader.nextLine();
 					if(currentLine.equals(oldLivery)){
-						validLiveries.add(configs.get(i));
+						validLiveries.add(configs.get(m));
 					}
 				}
 				configReader.close();
@@ -197,19 +196,6 @@ public class FindLiveries {
 		return validLiveries;
 	}
 
-
-	public static void printList(ArrayList<String> list){
-			for(int i = 0; i < list.size(); i++){
-				System.out.println(list.get(i));
-			}
-		}
-
-
-	public static void printFileList(ArrayList<File> list){
-		for(int i = 0; i < list.size(); i++){
-			System.out.println(list.get(i).getAbsolutePath() + " || " + list.get(i).exists() );
-		}
-	}
 
 
 	public static ArrayList<String> scanCommunityFolder(ArrayList<String> contents){
@@ -229,13 +215,13 @@ public class FindLiveries {
 			communityPath =  communityFolder.getAbsolutePath() + "\\";
 			communityContents = communityFolder.list();
 
-			for(int i = 0; i < communityContents.length; i++) {
-				manifestFile = new File(communityPath + communityContents[i] + "\\manifest.json");
+			for(int n = 0; n < communityContents.length; n++) {
+				manifestFile = new File(communityPath + communityContents[n] + "\\manifest.json");
 				if (manifestFile.exists()) {
-					contents.add(communityPath + communityContents[i]);
+					contents.add(communityPath + communityContents[n]);
 					// Has a valid manifest.json file, and is a proper addon / mod.
 				} else {
-					Main.printErr(communityContents[i] + " is missing a 'manifest.json' file, thus will not load properly in sim.");
+					Main.printErr(communityContents[n] + " is missing a 'manifest.json' file, thus will not load properly in sim.");
 				}
 			}
 		} else {
@@ -247,8 +233,8 @@ public class FindLiveries {
 
 	// Takes an empty arraylist of files  and populates it with files whose paths come from the arraylist of strings.
 	public static ArrayList<File> addFilestoList(ArrayList<File> fileList, ArrayList<String> filePaths){
-		for(int i = 0; i < filePaths.size(); i++){
-			fileList.add(new File(filePaths.get(i)));
+		for(int o = 0; o < filePaths.size(); o++){
+			fileList.add(new File(filePaths.get(o)));
 		}
 		return fileList;
 	}

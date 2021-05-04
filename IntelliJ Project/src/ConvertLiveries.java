@@ -6,7 +6,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class ConvertLiveries {
+public class ConvertLiveries extends FindLiveries{
 
 	static ArrayList<File> manifests = new ArrayList<>();
 	static ArrayList<File> layouts = new ArrayList<>();
@@ -16,27 +16,28 @@ public class ConvertLiveries {
 	static String modelFolderName = null;
 
 	public static void copyLiveries() {
-		for(int i = 0; i < FindLiveries.installedLiveries.size(); i++){
+		for(int i = 0; i < installedLiveries.size(); i++){
 			try{
-				FileOps.copyLivery(FindLiveries.installedLiveries.get(i), FindLiveries.newLiveries.get(i));
+				FileOps.copyLivery(installedLiveries.get(i), newLiveries.get(i));
 			} catch(IndexOutOfBoundsException ignored){
 
 			}
 		}
 	}
 
+
 	public static void copySimObjects(){
-		for(int j = 0; j < FindLiveries.simObjects.size(); j++){
-			FileOps.copySimObjects(FindLiveries.simObjects.get(j), FindLiveries.newSimObjects.get(j));
+		for(int j = 0; j < simObjects.size(); j++){
+			FileOps.copySimObjects(simObjects.get(j), newSimObjects.get(j));
 		}
 	}
 
 
 	// Looks for the aircraft
 	public static void findAllFiles(){
-		manifests = populateList(FindLiveries.newLiveries, manifests, "\\manifest.json");
-		layouts = populateList(FindLiveries.newLiveries, layouts, "\\layout.json");
-		aircraftConfigs = populateList(FindLiveries.newSimObjects, aircraftConfigs, "\\aircraft.cfg");
+		manifests = populateList(newLiveries, manifests, "\\manifest.json");
+		layouts = populateList(newLiveries, layouts, "\\layout.json");
+		aircraftConfigs = populateList(newSimObjects, aircraftConfigs, "\\aircraft.cfg");
 		startFileConversion();
 	}
 
@@ -50,9 +51,19 @@ public class ConvertLiveries {
 
 
 	public static void startFileConversion(){
-		for(int i = 0; i < aircraftConfigs.size(); i++){
-			convertAircraftConfig(aircraftConfigs.get(i), FindLiveries.newSimObjects.get(i));
+		// Iteration variable within each one says what it does.
+		for(int confs = 0; confs < aircraftConfigs.size(); confs++){
+			convertAircraftConfig(aircraftConfigs.get(confs), newSimObjects.get(confs));
 		}
+
+		for(int layouts = 0; layouts < newLiveries.size(); layouts++){
+			ConvertLayout.readJsonFile(newLiveries.get(layouts));
+		}
+
+		for(int manifests = 0; manifests < newLiveries.size(); manifests++){
+			ConvertManifest.readManifest(newLiveries.get(manifests));
+		}
+
 	}
 
 
@@ -81,7 +92,6 @@ public class ConvertLiveries {
 			}
 			
 			aircraftReader.close();
-			//System.out.println("File deleted");
 			aircraftConfig.delete();
 			
 		} catch (FileNotFoundException fnfe) {
@@ -123,14 +133,11 @@ public class ConvertLiveries {
 		aircraftConfigContents.set(indexes[1], "ui_manufacturer = \"FlyByWire Simulations\"");
 		aircraftConfigContents.set(indexes[2], "ui_type = \"A320neo (LEAP)\"");
 
-		
 		textureFolderName = removeQuotes(textureFolder);
 		modelFolderName = removeQuotes(modelFolder);
 
-
 		writeNewConfigFile(aircraftConfigContents, path.getAbsolutePath() + "\\aircraft.cfg");
 		convertTextureConfig(path, textureFolderName);
-		
 	}
 	
 	
@@ -160,13 +167,6 @@ public class ConvertLiveries {
 	}
 	
 
-	public static void printArrList(ArrayList<String> arrlist) {
-			for(int i = 0; i < arrlist.size(); i++) {
-				System.out.println(arrlist.get(i));
-			}
-	}
-
-	
 	public static void convertTextureConfig(File path, String folderName) {
 		int textureFolderIndex = 0;
 		int textureFileIndex = 0;
@@ -314,6 +314,6 @@ public class ConvertLiveries {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}	
+		}
 	}
 }
