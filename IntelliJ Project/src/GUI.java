@@ -6,6 +6,14 @@ import javax.swing.WindowConstants;
 import java.io.IOException;
 
 //Class name explains itself.
+
+/*
+    To do list, in no particular order:
+	- Button to scan for liveries
+	- Button to convert liveries
+	- checkbox to delete original liveries (require confirmation on clicking)
+	- Checkbox to generate batch file for symlinks
+*/
 public class GUI {
 	
 	static JTextArea consoleOutput = new JTextArea();

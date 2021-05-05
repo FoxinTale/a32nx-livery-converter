@@ -84,11 +84,9 @@ public class FindLiveries {
 			contents = simObjects.get(f).list();
 			simObjects.set(f, new File(simObjects.get(f).getAbsolutePath() + "\\" +  contents[0]));
 		}
-
 		newSimObjects = makeNewPaths(simObjects, newSimObjects);
 
 		ConvertLiveries.copySimObjects();
-
 
 		ConvertLiveries.findAllFiles();
 		System.out.println();
@@ -126,7 +124,6 @@ public class FindLiveries {
 				newList.remove(i);
 			}
 		}
-
 		for(int j = 0; j < newList.size(); j++){
 			tempList.add(new File(newList.get(j)));
 		}
@@ -197,7 +194,6 @@ public class FindLiveries {
 	}
 
 
-
 	public static ArrayList<String> scanCommunityFolder(ArrayList<String> contents){
 		File packages = new File(GetPlatform.finalInstallPath);
 		File communityFolder = null;
@@ -238,4 +234,6 @@ public class FindLiveries {
 		}
 		return fileList;
 	}
+
+
 }

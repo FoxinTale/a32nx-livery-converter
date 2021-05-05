@@ -89,11 +89,11 @@ public class ConvertLayout {
 		}
 
 		if(allGood){
-			writeJsonFile(fileContents);
+			writeLayoutFile(fileContents);
 		}
 	}
 	
-	public static void writeJsonFile(ArrayList<String> fileContents) {
+	public static void writeLayoutFile(ArrayList<String> fileContents) {
 		File newConfigFile = new File(layout);
 		
 		try {

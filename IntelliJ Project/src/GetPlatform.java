@@ -88,7 +88,6 @@ public class GetPlatform {
 		}
 		
 		finalInstallPath = installPathSB.toString().strip();
-		//System.out.println(finalInstallPath);
 		FindLiveries.getInstalledLiveries();
 	}
 }

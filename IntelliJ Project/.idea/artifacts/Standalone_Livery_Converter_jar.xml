@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Standalone Livery Converter:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Standalone_Livery_Converter_jar</output-path>
+    <root id="archive" name="Standalone Livery Converter.jar">
+      <element id="module-output" name="Standalone Livery Converter" />
+    </root>
+  </artifact>
+</component>

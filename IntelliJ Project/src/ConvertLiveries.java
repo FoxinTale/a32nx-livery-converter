@@ -64,6 +64,7 @@ public class ConvertLiveries extends FindLiveries{
 			ConvertManifest.readManifest(newLiveries.get(manifests));
 		}
 
+		SymlinkFile.makeSymlinkList(newLiveries);
 	}
 
 
@@ -73,15 +74,17 @@ public class ConvertLiveries extends FindLiveries{
 		String oldAircraft = "base_container = \"..\\Asobo_A320_NEO\"";
 		String newAircraft = "base_container = \"..\\FlyByWire_A320_NEO\"";
 
-		// Main Texture Found, Main Model Found, Manufacturer Found, Type Found
-		Boolean[] findings = {false, false, false, false};
+		// Title Found, Main Texture Found, Main Model Found, Manufacturer Found, Type Found
+		Boolean[] findings = {false, false, false, false, false};
 
-		// Index of "base_container", Index of "ui_manufacturer, Index of "ui_type"
-		Integer[] indexes = {0, 0, 0};
+		// Index of "base_container", Index of "title", Index of "ui_manufacturer, Index of "ui_type"
+		Integer[] indexes = {0, 0, 0, 0};
 
 		String textureFolder = null;
 		String modelFolder = null;
 		String currentLine;
+
+		StringBuilder titleSB = new StringBuilder();
 
 		try {
 			Scanner aircraftReader = new Scanner(aircraftConfig);
@@ -106,33 +109,41 @@ public class ConvertLiveries extends FindLiveries{
 			} else {
 				// Could not find the base container.
 			}
-
-			if(aircraftConfigContents.get(i).contains("texture") && !findings[0]) {
-				textureFolder = aircraftConfigContents.get(i);
+			if(aircraftConfigContents.get(i).contains("title") && !findings[0]){
+				indexes[1] = i;
 				findings[0] = true;
 			}
-			
-			if(aircraftConfigContents.get(i).contains("model") && !findings[1]) {
-				modelFolder = aircraftConfigContents.get(i);
+
+			if(aircraftConfigContents.get(i).contains("texture") && !findings[1]) {
+				textureFolder = aircraftConfigContents.get(i);
 				findings[1] = true;
 			}
 			
-			if(aircraftConfigContents.get(i).contains("ui_manufacturer") && !findings[2]){
-				indexes[1] = i;
+			if(aircraftConfigContents.get(i).contains("model") && !findings[2]) {
+				modelFolder = aircraftConfigContents.get(i);
 				findings[2] = true;
 			}
 			
-			if(aircraftConfigContents.get(i).contains("ui_type") && !findings[3]) {
+			if(aircraftConfigContents.get(i).contains("ui_manufacturer") && !findings[3]){
 				indexes[2] = i;
 				findings[3] = true;
 			}
+			
+			if(aircraftConfigContents.get(i).contains("ui_type") && !findings[4]) {
+				indexes[3] = i;
+				findings[4] = true;
+			}
 		}
+		titleSB.append(aircraftConfigContents.get(indexes[1]));
+		titleSB.delete(titleSB.lastIndexOf("\""), titleSB.length());
+		titleSB.append(" (A32NX)\" ; Variation name");
 
-		
 		aircraftConfigContents.set(indexes[0], newAircraft);
-		aircraftConfigContents.set(indexes[1], "ui_manufacturer = \"FlyByWire Simulations\"");
-		aircraftConfigContents.set(indexes[2], "ui_type = \"A320neo (LEAP)\"");
+		aircraftConfigContents.set(indexes[1], titleSB.toString());
+		aircraftConfigContents.set(indexes[2], "ui_manufacturer = \"TT:AIRCRAFT.UI_MANUFACTURER\" ; e.g. Boeing, Cessna");
+		aircraftConfigContents.set(indexes[3], "ui_type = \"TT:AIRCRAFT.UI_MODEL\" ; e.g. 747-400, 172");
 
+		titleSB.delete(0, titleSB.length());
 		textureFolderName = removeQuotes(textureFolder);
 		modelFolderName = removeQuotes(modelFolder);
 

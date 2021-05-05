@@ -1,8 +1,10 @@
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 /*
     To do list, in no particular order:
-    - Convert the manifest file.
     - Create new symlinks if the livery was simlinked initially.
     - More code documentation.
     - Begin outputting things to the user via GUI so they know what is happening.
@@ -17,6 +19,7 @@ public class Main {
     // This creates and assigns a new printstream for redirecting the console output.
     private static PrintStream standardOut;
 
+    static ArrayList<File> liveries = new ArrayList<>();
     // Good old main.
     public static void main(String[] args) throws IOException {
 
@@ -24,6 +27,7 @@ public class Main {
         // GUI.makeGUI();
         GetPlatform.whichPlatform();
     }
+
 
     // This is how it outputs to the text area in the GUI via standard System.out calls.
     public static void redirectOutput(){
@@ -43,7 +47,7 @@ public class Main {
     }
 
     //Custom print function to add a single space in front.
-    // This is so it doesn't look too close to the edge, and cluttered/ cramped.
+    // This is so it doesn't look too close to the edge, and cluttered / cramped.
     public static void print(String s){
         System.out.println("  " + s);
     }
